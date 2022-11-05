@@ -1,0 +1,28 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    name: Deploy docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        uses: Tiryoh/actions-mkdocs@v0
+      - name: Sync files
+        uses: SamKirkland/FTP-Deploy-Action@4.3.2
+        with:
+          server: ${{ secrets.ftp_server }}
+          username: ${{ secrets.ftp_user }}
+          password: ${{ secrets.ftp_password }}
+          local-dir: ./site/
+          server-dir: ./site/
+      - name: Diag
+        if: failure()
+        run: cat ./site/.ftp-deploy-sync-state.json
+      - name: Diag
+        if: failure()
+        run: cat .ftp-deploy-sync-state.json
